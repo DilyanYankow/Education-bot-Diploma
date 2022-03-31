@@ -25,6 +25,11 @@ async def ping(ctx):
     await ctx.send(f'Pong! {round(client.latency * 1000)} ms')
 
 
+@client.command()
+async def ping(ctx, amount=5):
+    await ctx.channel.purge(limit=amount+1)
+
+
 @client.command(aliases=['8ball', 'test'])
 async def _8ball(ctx, *, question):
     responses = [
