@@ -1,10 +1,12 @@
 import random
+from itertools import cycle
+
 import discord
 import os
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 client = commands.Bot(command_prefix='!')
-
+status = cycle(["Status 1", "Status 2"])
     #Commands
 @client.command()
 async def load(ctx, extension):
@@ -31,6 +33,16 @@ async def kick(ctx, member : discord.Member, *, reason=None):
 async def ban(ctx, member : discord.Member, *, reason=None):
     await member.ban(reason=reason)
     await ctx.send(f'Banned {member.name}#{member.discord}')
+
+@client.command()
+async def clear(ctx, amount : int):
+    await ctx.channel.purge(limit=amount)
+
+@clear.error
+async def clear_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('Enter the number of messages you want to delete.')
+
 
 @client.command()
 async def unban(ctx, *, member):
@@ -80,7 +92,19 @@ async def on_member_remove(member):
 
 @client.event
 async def on_ready():
+    await client.change_presence(status=discord.Status.idle, activity=discord.Game("!help for commands"))
+    change_status.start()
     print('bot is ready.')
+
+# @client.event
+# async def on_command_error(ctx, error):
+#     if isinstance(error, commands.CommandNotFound):
+#         await ctx.send('Invalid command name used.')
+
+     #Tasks
+@tasks.loop(seconds=10)     #preferably more than 5-10 sec
+async def change_status():
+    await client.change_presence(activity=discord.Game(next(status)))
 
 for filename in os.listdir('./cogs'):   #for each file in /cogs folder
     if filename.endswith('.py'):

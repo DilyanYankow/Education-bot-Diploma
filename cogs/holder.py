@@ -15,5 +15,6 @@ class Holder(commands.Cog):
     async def ping(self, ctx):
         await ctx.send('Pong!')
 
+
 def setup(client):
     client.add_cog(Holder(client))
