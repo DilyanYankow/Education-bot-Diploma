@@ -35,14 +35,17 @@ async def ban(ctx, member : discord.Member, *, reason=None):
     await ctx.send(f'Banned {member.name}#{member.discord}')
 
 @client.command()
+@commands.has_permissions(manage_messages=True)
 async def clear(ctx, amount : int):
     await ctx.channel.purge(limit=amount)
+
 
 @clear.error
 async def clear_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Enter the number of messages you want to delete.')
-
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send('You do not have the permissions to use this command.')
 
 @client.command()
 async def unban(ctx, *, member):
@@ -105,6 +108,7 @@ async def on_ready():
 @tasks.loop(seconds=10)     #preferably more than 5-10 sec
 async def change_status():
     await client.change_presence(activity=discord.Game(next(status)))
+
 
 for filename in os.listdir('./cogs'):   #for each file in /cogs folder
     if filename.endswith('.py'):
