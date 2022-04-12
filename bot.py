@@ -1,11 +1,19 @@
 import random
+import json
 from itertools import cycle
 
 import discord
 import os
 from discord.ext import commands, tasks
 
-client = commands.Bot(command_prefix='!')
+def get_prefix(client, message):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+    return prefixes[str(message.guild.id)]
+
+
+
+client = commands.Bot(command_prefix = get_prefix)
 status = cycle(["Status 1", "Status 2"])
     #Commands
 @client.command()
@@ -84,6 +92,14 @@ async def _8ball(ctx, *, question):
     ]
     await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
 
+@client.command()
+async def changeprefix(ctx, prefix):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+    prefixes[str(ctx.guild.id)] = prefix
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+    await ctx.send(f'Prefix changed to: {prefix}')
     #Events
 @client.event
 async def on_member_join(member):
@@ -98,6 +114,23 @@ async def on_ready():
     await client.change_presence(status=discord.Status.idle, activity=discord.Game("!help for commands"))
     change_status.start()
     print('bot is ready.')
+
+@client.event
+async def on_guild_join(guild):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+    prefixes[str(guild.id)] = '!'
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+
+@client.event
+async def on_guild_remove(guild):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+    prefixes.pop(str(guild.id))
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+
 
 # @client.event
 # async def on_command_error(ctx, error):
