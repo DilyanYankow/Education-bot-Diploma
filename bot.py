@@ -1,3 +1,4 @@
+import asyncio
 import random
 import json
 from itertools import cycle
@@ -33,14 +34,33 @@ async def reload(ctx, extension):
 async def purge(ctx, amount=5):
     await ctx.channel.purge(limit=amount+1)
 
+class DurationConverter(commands.Converter):
+    async def convert(self, ctx, argument):
+        amount = argument[:-1]
+        unit = argument[-1]
+
+        if amount.isdigit() and unit in ['s', 'm']:
+            return (int(amount), unit)
+
+        raise commands.BadArgument(message="Not a valid duration")
 @client.command()
-async def kick(ctx, member : discord.Member, *, reason=None):
+async def kick(ctx, member : commands.MemberConverter, *, reason=None):
     await member.kick(reason=reason)
 
 @client.command()
-async def ban(ctx, member : discord.Member, *, reason=None):
+async def ban(ctx, member : commands.MemberConverter, *, reason=None):
     await member.ban(reason=reason)
     await ctx.send(f'Banned {member.name}#{member.discord}')
+
+@client.command()
+async def bantemp(ctx, member : commands.MemberConverter, duration: DurationConverter):
+    multiplier = {'s': '1', 'm': 60}
+    amount, unit = duration
+
+    await ctx.guild.ban(member)
+    await ctx.send(f'{member} has been banned for {amount}{unit}.')
+    await asyncio.sleep(amount * multiplier[unit])
+    await ctx.guild.unban(member)
 
 @client.command()
 @commands.has_permissions(manage_messages=True)
