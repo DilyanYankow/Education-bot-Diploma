@@ -2,14 +2,15 @@ import discord
 from discord import client
 from discord.ext import commands
 
-class Check_members(commands.Cog):
+
+class Check_Members(commands.Cog):
     def __init__(self, client):
-        self.client=client
+        self.client = client
 
     #Events
     @commands.Cog.listener()        #function decorator
     async def on_ready(self):
-        print('Bot is online.')
+        print('Check members cog is loaded.')
 
     #Commands
     @commands.command(aliases=['attendees'])
@@ -32,4 +33,4 @@ class Check_members(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(Check_members(client))
+    client.add_cog(Check_Members(client))

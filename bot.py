@@ -65,7 +65,7 @@ async def bantemp(ctx, member : commands.MemberConverter, duration: DurationConv
 @client.command()
 @commands.has_permissions(manage_messages=True)
 async def clear(ctx, amount : int):
-    await ctx.channel.purge(limit=amount)
+    await ctx.channel.purge(limit=amount+1)
 
 
 @clear.error
