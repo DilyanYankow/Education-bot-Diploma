@@ -1,6 +1,6 @@
-import discord
-from discord import client
 from discord.ext import commands
+
+from bot import client
 
 
 class Lecture_Announcements(commands.Cog):
@@ -11,13 +11,17 @@ class Lecture_Announcements(commands.Cog):
 
     #Commands
     @commands.command(aliases=['lecture'])
-    @commands.has_permissions(manage_messages=True)
     async def define_new_lecture(self, ctx):
+        def check(reaction, user):
+            return user == ctx.message.author and str(reaction.emoji) in '✅'
+
         days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         await ctx.send('Check on which day of the week is your lecture')
         for item in days_of_week:
             msg = await ctx.send(item)
             await msg.add_reaction(emoji="✅")
+        reaction = await client.wait_for("reaction_add", check=check)  # Wait for a reaction
+        await ctx.send(f"You reacted with: {reaction[0]}")  # With [0] we only display the emoji
 
     @define_new_lecture.error
     async def echo_error(self, ctx, error):
@@ -25,21 +29,14 @@ class Lecture_Announcements(commands.Cog):
             await ctx.send('The command does not take any arguments')
         if isinstance(error, commands.MissingPermissions):
             await ctx.send('You do not have the permissions to use this command.')
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send('Invalid number of parameters')
+
+
 
     #Events
     @commands.Cog.listener()  # function decorator
     async def on_ready(self):
         print('Lecture announcements cog is loaded.')
 
-
-    @commands.Cog.listener()
-    async def on_reaction_add(self, reaction, user):
-        if user != client.user:
-            if str(reaction.emoji) == "✅":
-                return
-     #   if any(reaction.emoji == emoji for reaction in message.reactions):
 
 
 

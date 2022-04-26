@@ -5,7 +5,7 @@ from discord.ext import commands
 
 class Check_Members(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client=client
 
     #Events
     @commands.Cog.listener()        #function decorator

@@ -75,6 +75,7 @@ async def clear_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         await ctx.send('You do not have the permissions to use this command.')
 
+
 @client.command()
 async def unban(ctx, *, member):
     banned_users = await ctx.guild.bans()
@@ -85,6 +86,7 @@ async def unban(ctx, *, member):
             await ctx.guild.unban(user)
             await ctx.send(f'Unbanned {user.mention}')
             return
+
 
 @client.command(aliases=['8ball', 'test'])
 async def _8ball(ctx, *, question):
