@@ -5,3 +5,16 @@ documentation of discord library- https://discordpy.readthedocs.io/en/latest/
 TO DO - https://stackoverflow.com/a/64429190/16649709
 get channel ID - https://stackoverflow.com/a/63322209/16649709
 bot joins discord channel - https://stackoverflow.com/a/67132244/16649709
+
+await msg.add_reaction(emoji='1️⃣')
+        await msg.add_reaction(emoji='2️⃣')
+        await msg.add_reaction(emoji='3️⃣')
+        await msg.add_reaction(emoji='4️⃣')
+        await msg.add_reaction(emoji='5️⃣')
+        await msg.add_reaction(emoji='6️⃣')
+        await msg.add_reaction(emoji='7️⃣')
+        weekday = await client.wait_for("reaction_add", check=check,  timeout=15)  # Wait for a reaction
+        await ctx.send(f"Day of the week selected: {weekday}")  # With [0] we only display the emoji
+        await ctx.send('Please type for how many weeks will the lectures persist')
+        end_date = await client.wait_for('message_send',check, timeout=15)
+        await ctx.send(f'{weekday}, {end_date}')

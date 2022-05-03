@@ -1,4 +1,6 @@
+import discord
 from discord.ext import commands
+import discord.utils
 
 from bot import client
 
@@ -7,41 +9,47 @@ class Lecture_Announcements(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    # Commands
+    @commands.command(aliases=['lecture', 'announce'])
+    async def announce_lecture(self, ctx, *, message):
+        def check(react, user):
+            return user == ctx.message.author and str(react.emoji) in '✅'
 
-
-    #Commands
-    @commands.command(aliases=['lecture'])
-    async def define_new_lecture(self, ctx):
-        def check(reaction, user):
-            return user == ctx.message.author and str(reaction.emoji) in '✅'
-
-        days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        await ctx.send('Check on which day of the week is your lecture')
-        for item in days_of_week:
-            msg = await ctx.send(item)
-            await msg.add_reaction(emoji="✅")
-        reaction = await client.wait_for("reaction_add", check=check)  # Wait for a reaction
+        msg = await ctx.send('Are you sure you wish to make an announcement?')
+        await msg.add_reaction(emoji="✅")
+        await msg.add_reaction(emoji="❎")
+        reaction = await client.wait_for("reaction_add", check=check, timeout=15)  # Wait for a reaction
         await ctx.send(f"You reacted with: {reaction[0]}")  # With [0] we only display the emoji
+        # await ctx.send(f'{reaction[0]}, {reaction}')
+        if reaction[0].emoji == '✅':
+            await ctx.send("reaction.emoji == '✅' true")
+            # Find a channel from the guilds `text channels` (Rather then voice channels)
+            # with the name announcements
+            channel = discord.utils.get(ctx.guild.text_channels, name="announcements")
+            if channel:  # If a channel exists with the name
+                embed = discord.Embed(color=discord.Color.dark_gold(), timestamp=ctx.message.created_at)
+                embed.set_author(name="Announcement", icon_url=self.client.user.avatar_url)
+                embed.add_field(name=f"Sent by {ctx.message.author}", value=str(message), inline=False)
+                embed.set_thumbnail(url=self.client.user.avatar_url)
+                embed.set_footer(text=self.client.user.name, icon_url=self.client.user.avatar_url)
+                await ctx.message.add_reaction(emoji="✅")
+                await channel.send(embed=embed)
+        else:
+            await ctx.send(f'{reaction[0]}, {reaction}')
 
-    @define_new_lecture.error
-    async def echo_error(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('The command does not take any arguments')
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send('You do not have the permissions to use this command.')
+    # @announce_lecture.error
+    # async def echo_error(self, ctx, error):
+       # if isinstance(error, commands.MissingRequiredArgument):
+         #   await ctx.send('The command takes 1 argument')
+       # if isinstance(error, commands.MissingPermissions):
+        #    await ctx.send('You do not have the permissions to use this command.')
 
-
-
-    #Events
+    # Events
     @commands.Cog.listener()  # function decorator
     async def on_ready(self):
         print('Lecture announcements cog is loaded.')
 
-
-
-
-
-#Functions
+# Functions
 #     async def create_announcements_channel(self, ctx, channel_name):
 #        guild = ctx.guild
  #       overwrites = {
@@ -49,6 +57,7 @@ class Lecture_Announcements(commands.Cog):
    #         guild.me: discord.PermissionOverwrite(write_messages=True)
    #     }
    #     channel = await guild.create_text_channel(channel_name, overwrites=overwrites)
+
 
 def setup(client):
     client.add_cog(Lecture_Announcements(client))
