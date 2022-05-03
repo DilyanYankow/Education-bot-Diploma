@@ -49,14 +49,6 @@ class Lecture_Announcements(commands.Cog):
     async def on_ready(self):
         print('Lecture announcements cog is loaded.')
 
-# Functions
-#     async def create_announcements_channel(self, ctx, channel_name):
-#        guild = ctx.guild
- #       overwrites = {
-  #          guild.default_role: discord.PermissionOverwrite(read_messages=True, write_messages=False),
-   #         guild.me: discord.PermissionOverwrite(write_messages=True)
-   #     }
-   #     channel = await guild.create_text_channel(channel_name, overwrites=overwrites)
 
 
 def setup(client):
