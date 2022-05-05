@@ -11,9 +11,7 @@ class Holder(commands.Cog):
         print('Bot is online.')
 
     #Commands
-    @commands.command()
-    async def ping(self, ctx):
-        await ctx.send('Pong!')
+
 
 
 def setup(client):

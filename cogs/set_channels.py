@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-class Create_Channels(commands.Cog):
+class Set_Channels(commands.Cog):
     def __init__(self, client):
         self.client=client
 
@@ -27,4 +27,4 @@ class Create_Channels(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(Create_Channels(client))
+    client.add_cog(Set_Channels(client))
