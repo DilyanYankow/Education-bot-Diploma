@@ -18,7 +18,7 @@ class Set_Roles(commands.Cog):
     # Commands
 
 
-    @commands.command(aliases=['setup_roles',])
+    @commands.command(aliases=['setup_roles'])
     async def role_set(self, ctx):
         def check(react, user):
             return user == ctx.message.author and str(react.emoji) in '✅'
@@ -30,7 +30,7 @@ class Set_Roles(commands.Cog):
         if reaction[0].emoji == '✅':
             server = ctx.message.guild
             permStu = discord.Permissions(send_messages=True, read_messages=True, create_instant_invite=False,
-                                          use_external_emojis=False)
+                                          use_external_emojis=False, external_stickers=False)
             await server.create_role(name='Student', permissions=permStu)
             permTeach = discord.Permissions(send_messages=True, read_messages=True, create_instant_invite=True,
                                             kick_members=True, ban_members=True,
