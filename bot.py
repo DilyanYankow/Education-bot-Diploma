@@ -6,6 +6,8 @@ from itertools import cycle
 import discord
 import os
 from discord.ext import commands, tasks
+from discord.ext.commands import has_permissions, MissingPermissions
+
 
 def get_prefix(client, message):
     with open('prefixes.json', 'r') as f:
@@ -13,26 +15,35 @@ def get_prefix(client, message):
     return prefixes[str(message.guild.id)]
 
 
-
-client = commands.Bot(command_prefix = get_prefix)
+intents = discord.Intents.default()
+intents.members = True
+client = commands.Bot(command_prefix=get_prefix, intents=intents)
 status = cycle(["Status 1", "Status 2"])
-    #Commands
+
+
+# Commands
 @client.command()
 async def load(ctx, extension):
     client.load_extension(f'cog.{extension}')
 
+
 @client.command()
 async def unload(ctx, extension):
     client.unload_extension(f'cog.{extension}')
+
 
 @client.command()
 async def reload(ctx, extension):
     client.unload_extension(f'cog.{extension}')
     client.load_extension(f'cog.{extension}')
 
+
 @client.command()
 async def purge(ctx, amount=5):
-    await ctx.channel.purge(limit=amount+1)
+    await ctx.channel.purge(limit=amount + 1)
+
+
+
 
 class DurationConverter(commands.Converter):
     async def convert(self, ctx, argument):
@@ -43,17 +54,33 @@ class DurationConverter(commands.Converter):
             return (int(amount), unit)
 
         raise commands.BadArgument(message="Not a valid duration")
-@client.command()
-async def kick(ctx, member : commands.MemberConverter, *, reason=None):
+
+
+@client.command(name='kick')
+@has_permissions(kick_members=True)
+async def kick(ctx, member: commands.MemberConverter, *, reason=None):
     await member.kick(reason=reason)
 
+
+@kick.error
+async def kick_error(error, ctx):
+    if isinstance(error, commands.MissingPermissions):
+        print('1')
+        await ctx.send('You have no permissions to use this command')
+    if isinstance(error, commands.MemberNotFound):
+        print('2')
+        await ctx.send('Member not found')
+
+
 @client.command()
-async def ban(ctx, member : commands.MemberConverter, *, reason=None):
+async def ban(ctx, member: commands.MemberConverter, *, reason=None):
     await member.ban(reason=reason)
     await ctx.send(f'Banned {member.name}#{member.discord}')
 
+
 @client.command()
-async def bantemp(ctx, member : commands.MemberConverter, duration: DurationConverter):
+@has_permissions(ban_members=True)
+async def bantemp(ctx, member: commands.MemberConverter, duration: DurationConverter):
     multiplier = {'s': '1', 'm': 60}
     amount, unit = duration
 
@@ -62,10 +89,11 @@ async def bantemp(ctx, member : commands.MemberConverter, duration: DurationConv
     await asyncio.sleep(amount * multiplier[unit])
     await ctx.guild.unban(member)
 
+
 @client.command()
 @commands.has_permissions(manage_messages=True)
-async def clear(ctx, amount : int):
-    await ctx.channel.purge(limit=amount+1)
+async def clear(ctx, amount: int):
+    await ctx.channel.purge(limit=amount + 1)
 
 
 @clear.error
@@ -88,32 +116,6 @@ async def unban(ctx, *, member):
             return
 
 
-@client.command(aliases=['8ball', 'test'])
-async def _8ball(ctx, *, question):
-    responses = [
-        "It is certain.",
-        "It is decidedly so.",
-        "Without a doubt.",
-        "Yes - definitely.",
-        "You may rely on it.",
-        "As I see it, yes.",
-        "Most likely.",
-        "Outlook good.",
-        "Yes.",
-        "Signs point to yes.",
-        "Reply hazy, try again.",
-        "Ask again later.",
-        "Better not tell you now.",
-        "Cannot predict now.",
-        "Concentrate and ask again.",
-        "Don't count on it.",
-        "My reply is no.",
-        "My sources say no.",
-        "Outlook not so good.",
-        "Very doubtful."
-    ]
-    await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
-
 @client.command()
 async def changeprefix(ctx, prefix):
     with open('prefixes.json', 'r') as f:
@@ -122,20 +124,41 @@ async def changeprefix(ctx, prefix):
     with open('prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent=4)
     await ctx.send(f'Prefix changed to: {prefix}')
-    #Events
+
+
+    # Events
+
 @client.event
 async def on_member_join(member):
-    print(f'member has joined the server.')
+    try:
+        file = open('stu_info.json')
+        if str(member) in file.read():
+            print("Member already found in list")
+            return
+    except Exception as e:
+        print(e)
+    print(f'{member} has joined the server.')
+    try:
+        fac_num = 0
+        dict = {str(member): [member.guild.id, fac_num]}
+        with open('stu_info.json', 'a') as f:
+            json.dump(dict, f)
+            f.close()
+    except Exception as e:
+        print(e)
+
 
 @client.event
 async def on_member_remove(member):
     print(f'member has left the server.')
+
 
 @client.event
 async def on_ready():
     await client.change_presence(status=discord.Status.idle, activity=discord.Game("!help for commands"))
     change_status.start()
     print('bot is ready.')
+
 
 @client.event
 async def on_guild_join(guild):
@@ -144,6 +167,7 @@ async def on_guild_join(guild):
     prefixes[str(guild.id)] = '!'
     with open('prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent=4)
+
 
 @client.event
 async def on_guild_remove(guild):
@@ -154,18 +178,15 @@ async def on_guild_remove(guild):
         json.dump(prefixes, f, indent=4)
 
 
-# @client.event
-# async def on_command_error(ctx, error):
-#     if isinstance(error, commands.CommandNotFound):
-#         await ctx.send('Invalid command name used.')
 
-     #Tasks
-@tasks.loop(seconds=10)     #preferably more than 5-10 sec
+
+# Tasks
+@tasks.loop(seconds=10)  # preferably more than 5-10 sec
 async def change_status():
     await client.change_presence(activity=discord.Game(next(status)))
 
 
-for filename in os.listdir('./cogs'):   #for each file in /cogs folder
+for filename in os.listdir('./cogs'):  # for each file in /cogs folder
     if filename.endswith('.py'):
         client.load_extension((f'cogs.{filename[:-3]}'))
 

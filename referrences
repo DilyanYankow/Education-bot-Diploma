@@ -10,6 +10,8 @@ https://discordpy.readthedocs.io/en/latest/api.html#discord.Permissions
 https://discordpy.readthedocs.io/en/latest/api.html?highlight=create%20role#roles
 https://discordpy.readthedocs.io/en/latest/api.html?highlight=create%20role#discord.Permissions
 https://stackoverflow.com/questions/65902886/trying-to-make-a-yes-no-reaction-confirmation-but-bot-does-not-respond-to-reac
+command only works in DM - https://stackoverflow.com/a/65362424/16649709
+storing data - https://youtu.be/eFxrnBxpRE4
 
 await msg.add_reaction(emoji='1️⃣')
         await msg.add_reaction(emoji='2️⃣')

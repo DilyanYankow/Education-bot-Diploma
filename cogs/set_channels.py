@@ -11,7 +11,7 @@ class Set_Channels(commands.Cog):
     # Events
     @commands.Cog.listener()        #function decorator
     async def on_ready(self):
-        print('Bot is online.')
+        print('Set channels cog is ready.')
 
     # Commands
     @commands.command()
