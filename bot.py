@@ -10,9 +10,25 @@ from discord.ext.commands import has_permissions, MissingPermissions
 
 
 def get_prefix(client, message):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-    return prefixes[str(message.guild.id)]
+    try:
+        with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
+            return prefixes[str(message.guild.id)]
+
+    except KeyError:  # if the guild's prefix cannot be found in 'prefixes.json'
+        with open('prefixes.json', 'r') as k:
+            prefixes = json.load(k)
+        prefixes[str(message.guild.id)] = 'bl!'
+
+        with open('prefixes.json', 'w') as j:
+            json.dump(prefixes, j, indent=4)
+
+        with open('prefixes.json', 'r') as t:
+            prefixes = json.load(t)
+            return prefixes[str(message.guild.id)]
+
+    except:  # I added this when I started getting dm error messages
+        return '!'  # This will return "." as a prefix. You can change it to any default prefix.
 
 
 intents = discord.Intents.default()
@@ -43,8 +59,6 @@ async def purge(ctx, amount=5):
     await ctx.channel.purge(limit=amount + 1)
 
 
-
-
 class DurationConverter(commands.Converter):
     async def convert(self, ctx, argument):
         amount = argument[:-1]
@@ -54,6 +68,9 @@ class DurationConverter(commands.Converter):
             return (int(amount), unit)
 
         raise commands.BadArgument(message="Not a valid duration")
+
+
+
 
 
 @client.command(name='kick')
@@ -125,27 +142,27 @@ async def changeprefix(ctx, prefix):
         json.dump(prefixes, f, indent=4)
     await ctx.send(f'Prefix changed to: {prefix}')
 
-
     # Events
+
+
+def set_info(member, fac_num):
+    try:
+        file = open('stu_info.json')
+        dict = {str(member): [member.guild.id, fac_num]}
+        if str(member) in file.read():
+            file = open("stu_info.json", "w")
+        else:
+            file = open("stu_info.json", "a")
+        json.dump(dict, file)
+        file.close()
+    except Exception as e:
+        print(e)
+
 
 @client.event
 async def on_member_join(member):
-    try:
-        file = open('stu_info.json')
-        if str(member) in file.read():
-            print("Member already found in list")
-            return
-    except Exception as e:
-        print(e)
+    set_info(member, fac_num=0)
     print(f'{member} has joined the server.')
-    try:
-        fac_num = 0
-        dict = {str(member): [member.guild.id, fac_num]}
-        with open('stu_info.json', 'a') as f:
-            json.dump(dict, f)
-            f.close()
-    except Exception as e:
-        print(e)
 
 
 @client.event
@@ -176,8 +193,6 @@ async def on_guild_remove(guild):
     prefixes.pop(str(guild.id))
     with open('prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent=4)
-
-
 
 
 # Tasks

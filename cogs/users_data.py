@@ -5,7 +5,7 @@ import discord
 from discord import guild
 from discord.ext import commands
 
-from bot import client
+from bot import client, set_info
 
 
 async def send_DM(user, content):
@@ -29,6 +29,7 @@ class Users_Data(commands.Cog):
                 msg = "Hello there, you now have the Student role.\nYou can use the command: student_number " \
                       "to let your lecturers extract it more easilly" \
                       "\nExample: !student_number 1234567890"
+                set_info(after, 0)
                 await send_DM(after, msg)
             elif new_role.name in ('Teacher'):
                 pass
@@ -36,7 +37,7 @@ class Users_Data(commands.Cog):
     # Commands
     @commands.command(aliases=['student_number'])
     @commands.dm_only()
-    async def set_student_number(self, ctx, *, stu_number):
+    async def set_student_number(self, ctx, stu_number):
         def check(react, user):
             return user == ctx.message.author and str(react.emoji) in '✅'
 
@@ -47,14 +48,8 @@ class Users_Data(commands.Cog):
         await ctx.send(f"You reacted with: {reaction[0]}")  # With [0] we only display the emoji
         # await ctx.send(f'{reaction[0]}, {reaction}')
         if reaction[0].emoji == '✅':
-            with open('stu_info.json', 'r') as f:
-                stu_num = json.load(f)
-            stu_num["Student_num"] = stu_number
-            with open('stu_info.json', 'w') as f:
-                prefixes = json.load(f)
+            set_info(ctx.message.author, stu_number)
             await ctx.send(f'Student number changed to: {stu_number}')
-        else:
-            await ctx.send(f'{reaction[0]}, {reaction}')
 
 
 def setup(client):
