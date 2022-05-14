@@ -147,14 +147,20 @@ async def changeprefix(ctx, prefix):
 
 def set_info(member, fac_num):
     try:
-        file = open('stu_info.json')
-        dict = {str(member): [member.guild.id, fac_num]}
-        if str(member) in file.read():
-            file = open("stu_info.json", "w")
-        else:
-            file = open("stu_info.json", "a")
-        json.dump(dict, file)
-        file.close()
+        with open('stu_info.json', 'r') as f:
+            stu_info = json.load(f)
+        stu_info[str(member)] = str(fac_num)
+        with open('stu_info.json', 'w') as f:
+            json.dump(stu_info, f, indent=4)
+    except Exception as e:
+        print(e)
+
+def get_info(member):
+    try:
+        with open('stu_info.json', 'r') as f:
+            data = json.load(f)
+            print(data[str(member)])
+        return data[str(member)]
     except Exception as e:
         print(e)
 
@@ -167,6 +173,8 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
+    #can pop his information from the json file but its more convenient not to make
+    #people reenter their information upon rejoining
     print(f'member has left the server.')
 
 

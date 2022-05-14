@@ -5,7 +5,7 @@ import discord
 from discord import guild
 from discord.ext import commands
 
-from bot import client, set_info
+from bot import client, set_info, get_info
 
 
 async def send_DM(user, content):
@@ -50,6 +50,13 @@ class Users_Data(commands.Cog):
         if reaction[0].emoji == '✅':
             set_info(ctx.message.author, stu_number)
             await ctx.send(f'Student number changed to: {stu_number}')
+
+
+    @commands.command(aliases=['my_student_number', 'my_number'])
+    @commands.dm_only()
+    async def get_student_number(self, ctx):
+            my_number = get_info(ctx.message.author)
+            await ctx.send(f'Your student number is: {my_number}')
 
 
 def setup(client):
