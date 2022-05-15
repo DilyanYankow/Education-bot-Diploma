@@ -5,7 +5,7 @@ import discord
 from discord import guild
 from discord.ext import commands
 
-from bot import client, set_info, get_info
+from bot import client, set_info, get_info, is_botchannel, isTeacher
 
 
 async def send_DM(user, content):
@@ -23,6 +23,7 @@ class Users_Data(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
+        set_info(after, after.guild.name)
         if len(before.roles) < len(after.roles):
             new_role = next(role for role in after.roles if role not in before.roles)
             if new_role.name in ('Student'):
@@ -31,33 +32,41 @@ class Users_Data(commands.Cog):
                       "\nExample: !student_number 1234567890"
                 set_info(after, 0)
                 await send_DM(after, msg)
-            elif new_role.name in ('Teacher'):
-                pass
+
 
     # Commands
     @commands.command(aliases=['student_number'])
     @commands.dm_only()
     async def set_student_number(self, ctx, stu_number):
         def check(react, user):
-            return user == ctx.message.author and str(react.emoji) in '✅'
+            return user == ctx.message.author and str(react.emoji) in emojis
 
         msg = await ctx.send(f'This will be set as your faculty number: {stu_number}. Proceed?')
-        await msg.add_reaction(emoji="✅")
-        await msg.add_reaction(emoji="❎")
-        reaction = await client.wait_for("reaction_add", check=check, timeout=15)  # Wait for a reaction
-        await ctx.send(f"You reacted with: {reaction[0]}")  # With [0] we only display the emoji
-        # await ctx.send(f'{reaction[0]}, {reaction}')
-        if reaction[0].emoji == '✅':
-            set_info(ctx.message.author, stu_number)
-            await ctx.send(f'Student number changed to: {stu_number}')
+        emojis = ["✅", '❎']
+        for emoji in (emojis):
+            await msg.add_reaction(emoji)
+        try:
+            reaction = await client.wait_for("reaction_add", check=check, timeout=15)  # Wait for a reaction
+        except asyncio.TimeoutError:
+            await ctx.send("Time out")
+        else:
+            if reaction[0].emoji == '✅':
+                set_info(ctx.message.author, stu_number)
+                await ctx.send(f'Student number changed to: {stu_number}')
+            else:
+                await ctx.send('Student number wont be changed.')
 
 
     @commands.command(aliases=['my_student_number', 'my_number'])
     @commands.dm_only()
-    async def get_student_number(self, ctx):
+    async def get_my_student_info(self, ctx):
             my_number = get_info(ctx.message.author)
             await ctx.send(f'Your student number is: {my_number}')
 
-
+    @commands.command(aliases=['get_student_number'])
+    @commands.check(is_botchannel)
+    async def get_student_info(self, ctx):
+        my_number = get_info(ctx.message.author)
+        await ctx.send(f'Student number of the member is: {my_number}')
 def setup(client):
     client.add_cog(Users_Data(client))

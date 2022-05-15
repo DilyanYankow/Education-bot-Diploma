@@ -45,6 +45,17 @@ class Set_Channels(commands.Cog):
                 if channelAnnounce:  # If a channel exists with the name
                     await channelAnnounce.send('Channel is now open!')
 
+                overwritesQuestions = {
+                    guild.default_role: discord.PermissionOverwrite(view_channel=True, send_messages=False),
+                    discord.utils.get(guild.roles, name="Student"): discord.PermissionOverwrite(view_channel=True,
+                                                                                                send_messages=False),
+                    discord.utils.get(guild.roles, name="Teacher"): discord.PermissionOverwrite(view_channel=True,
+                                                                                                send_messages=True)
+                }
+                channelAnnounce = await guild.create_text_channel('questions', overwrites=overwritesQuestions)
+                if channelAnnounce:  # If a channel exists with the name
+                    await channelAnnounce.send('Channel is now open!')
+
                 overwritesEduBot = {
                     guild.default_role: discord.PermissionOverwrite(view_channel=False, send_messages=False),
                     discord.utils.get(guild.roles, name = "Student"): discord.PermissionOverwrite(view_channel=False, send_messages=False),
@@ -53,8 +64,10 @@ class Set_Channels(commands.Cog):
                 channelCommands = await guild.create_text_channel('bot-commands', overwrites=overwritesEduBot)
                 if channelCommands:  # If a channel exists with the name
                     await channelCommands.send('Channel is now open!')
+
             elif reaction[0].emoji == '❎':
                 await ctx.send("Channels won't be created")
+
 
 # Functions
 def setup(client):

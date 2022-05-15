@@ -159,15 +159,21 @@ def get_info(member):
     try:
         with open('stu_info.json', 'r') as f:
             data = json.load(f)
-            print(data[str(member)])
         return data[str(member)]
     except Exception as e:
         print(e)
 
+async def is_botchannel(ctx, chname='bot-commands'):
+    return ctx.channel.name == chname
+
+async def isTeacher(ctx):
+    if ('Teacher' in ctx.message.author.roles):
+        return True
+    return False
 
 @client.event
 async def on_member_join(member):
-    set_info(member, fac_num=0)
+    set_info(member, member.guild.name)
     print(f'{member} has joined the server.')
 
 
