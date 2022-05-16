@@ -1,8 +1,9 @@
 import asyncio
+import time
 
 import discord
 from discord.ext import commands
-
+from datetime import datetime
 from bot import is_botchannel, set_info
 from cogs.users_data import send_DM
 from bot import client
@@ -22,35 +23,44 @@ class Questions_Answers(commands.Cog):
     async def start_question(self, ctx, *, question):
         author = ctx.message.author
         channel = discord.utils.get(ctx.guild.text_channels, name="questions")
-        if channel:  # If a channel exists with the name
-            embed = discord.Embed(color=discord.Color.dark_gold(), timestamp=ctx.message.created_at)
-            embed.set_author(name="Question", icon_url=self.client.user.avatar_url)
-            embed.add_field(name=f"Sent by {ctx.message.author}", value=str(question), inline=False)
-            embed.set_thumbnail(url=self.client.user.avatar_url)
-            embed.set_footer(text=self.client.user.name, icon_url=self.client.user.avatar_url)
-            await ctx.message.add_reaction(emoji="✅")
-            await channel.send(embed=embed)
         try:
-            user_channel = author.voice.channel
-            members = user_channel.members  # finds members connected to the channel
-            if user_channel:  # If user is in a channel
-                attendees = []  # (list)
-                for member in members:
-                    if member != author:
-                        attendees.append(member.name)
-                        await send_DM(member, 'There is a new question in the Questions channel.'
-                                        'You can submit an answer via the command !answer\n'
-                                        'Example: !answer YourAnswerHere')
-                await ctx.send(f'Sent DM to the students: {attendees}')
-            else:
-                await ctx.send("Writer is not in a channel, DM's will not be sent to students")  # If the writer is not in a discord channel
+            arch_channel = discord.utils.get(ctx.guild.text_channels, name="answer-archives")
+            if arch_channel:
+                await arch_channel.send(file=discord.File(r'student_answers.txt'))
+                file = open("student_answers.txt", "w") #these 2 lines will
+                file.close()                            #delete all the text in the file
+            if channel:  # If a channel exists with the name
+                embed = discord.Embed(color=discord.Color.dark_gold(), timestamp=ctx.message.created_at)
+                embed.set_author(name="Question", icon_url=self.client.user.avatar_url)
+                embed.add_field(name=f"Sent by {ctx.message.author}", value=str(question), inline=False)
+                embed.set_thumbnail(url=self.client.user.avatar_url)
+                embed.set_footer(text=self.client.user.name, icon_url=self.client.user.avatar_url)
+                await ctx.message.add_reaction(emoji="✅")
+                await channel.send(embed=embed)
+            try:
+                user_channel = author.voice.channel
+                members = user_channel.members  # finds members connected to the channel
+                if user_channel:  # If user is in a channel
+                    attendees = []  # (list)
+                    for member in members:
+                        if member != author:
+                            attendees.append(member.name)
+                            await send_DM(member, 'There is a new question in the Questions channel.'
+                                            'You can submit an answer via the command !answer\n'
+                                            'Example: !answer YourAnswerHere')
+                    await ctx.send(f'Sent DM to the students: {attendees}')
+                else:
+                    await ctx.send("Writer is not in a channel, DM's will not be sent to students")  # If the writer is not in a discord channel
+            except Exception as e:
+                print(e)
         except Exception as e:
             print(e)
 
 
+
     @commands.command(aliases=['answer'])
-    @commands.check(is_botchannel)
-    async def answer_question(self, ctx, question, answer):
+    @commands.dm_only()
+    async def answer_question(self, ctx, *, answer):
         def check(react, user):
             return user == ctx.message.author and str(react.emoji) in emojis
 
@@ -64,8 +74,14 @@ class Questions_Answers(commands.Cog):
             await ctx.send("Time out")
         else:
             if reaction[0].emoji == '✅':
+                try:
+                    with open('student_answers.txt', 'a') as f:
+                        f.write(f'Time: {datetime.now().strftime("%D:%H:%M:%S")}, User: {ctx.message.author}, Answer: {answer}\n')
+                except Exception as e:
+                    print(e)
               #  set_answer(ctx.message.author, answer)
                 await ctx.send(f'Answer set as: {answer}')
+
 
 
 def setup(client):

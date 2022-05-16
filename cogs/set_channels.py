@@ -52,7 +52,7 @@ class Set_Channels(commands.Cog):
                     discord.utils.get(guild.roles, name="Teacher"): discord.PermissionOverwrite(view_channel=True,
                                                                                                 send_messages=True)
                 }
-                channelAnnounce = await guild.create_text_channel('questions', overwrites=overwritesQuestions)
+                channel = await guild.create_text_channel('questions', overwrites=overwritesQuestions)
                 if channelAnnounce:  # If a channel exists with the name
                     await channelAnnounce.send('Channel is now open!')
 
@@ -61,9 +61,24 @@ class Set_Channels(commands.Cog):
                     discord.utils.get(guild.roles, name = "Student"): discord.PermissionOverwrite(view_channel=False, send_messages=False),
                     discord.utils.get(guild.roles, name = "Teacher"): discord.PermissionOverwrite(view_channel=True, send_messages=True)
                 }
-                channelCommands = await guild.create_text_channel('bot-commands', overwrites=overwritesEduBot)
-                if channelCommands:  # If a channel exists with the name
-                    await channelCommands.send('Channel is now open!')
+                channel = await guild.create_text_channel('bot-commands', overwrites=overwritesEduBot)
+                if channel:  # If a channel exists with the name
+                    await channel.send('Channel is now open!')
+
+                overwritesAnswers = {   #same overwrites for archives channel
+                    guild.default_role: discord.PermissionOverwrite(view_channel=False, send_messages=False),
+                    discord.utils.get(guild.roles, name="Student"): discord.PermissionOverwrite(view_channel=False,
+                                                                                                send_messages=False),
+                    discord.utils.get(guild.roles, name="Teacher"): discord.PermissionOverwrite(view_channel=True,
+                                                                                                send_messages=False)
+                }
+                channel = await guild.create_text_channel('answers', overwrites=overwritesAnswers)
+                if channel:  # If a channel exists with the name
+                    await channel.send('Channel is now open!')
+                channel = await guild.create_text_channel('answer-archives', overwrites=overwritesAnswers)
+                if channel:  # If a channel exists with the name
+                    await channel.send('Channel is now open!')
+
 
             elif reaction[0].emoji == '❎':
                 await ctx.send("Channels won't be created")
