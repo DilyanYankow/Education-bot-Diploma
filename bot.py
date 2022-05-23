@@ -1,12 +1,11 @@
 import asyncio
-import random
 import json
 from itertools import cycle
 
 import discord
 import os
 from discord.ext import commands, tasks
-from discord.ext.commands import has_permissions, MissingPermissions
+from discord.ext.commands import has_permissions
 
 
 def get_prefix(client, message):
@@ -213,6 +212,8 @@ async def on_guild_remove(guild):
 @tasks.loop(seconds=10)  # preferably more than 5-10 sec
 async def change_status():
     await client.change_presence(activity=discord.Game(next(status)))
+
+
 
 
 for filename in os.listdir('./cogs'):  # for each file in /cogs folder

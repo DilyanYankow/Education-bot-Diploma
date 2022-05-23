@@ -37,10 +37,10 @@ class Questions_Answers(commands.Cog):
                 embed.set_footer(text=self.client.user.name, icon_url=self.client.user.avatar_url)
                 await ctx.message.add_reaction(emoji="✅")
                 await channel.send(embed=embed)
-            try:
+
                 user_channel = author.voice.channel
-                members = user_channel.members  # finds members connected to the channel
-                if user_channel:  # If user is in a channel
+                if user_channel:        # If user is in a channel
+                    members = user_channel.members  # finds members connected to the channel
                     attendees = []  # (list)
                     for member in members:
                         if member != author:
@@ -51,8 +51,6 @@ class Questions_Answers(commands.Cog):
                     await ctx.send(f'Sent DM to the students: {attendees}')
                 else:
                     await ctx.send("Writer is not in a channel, DM's will not be sent to students")  # If the writer is not in a discord channel
-            except Exception as e:
-                print(e)
         except Exception as e:
             print(e)
 

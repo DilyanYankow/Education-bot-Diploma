@@ -68,5 +68,6 @@ class Users_Data(commands.Cog):
     async def get_student_info(self, ctx):
         my_number = get_info(ctx.message.author)
         await ctx.send(f'Student number of the member is: {my_number}')
+
 def setup(client):
     client.add_cog(Users_Data(client))
