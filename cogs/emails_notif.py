@@ -22,6 +22,7 @@ class Emails_Notif(commands.Cog):
     @commands.Cog.listener()  # function decorator
     async def on_ready(self):
         print('Reading emails is online.')
+        self.check_email.start()
 
     # Commands
     @commands.command(aliases=['set_gmail', 'my_email'])
@@ -43,29 +44,33 @@ class Emails_Notif(commands.Cog):
                     file = open("emails.json", "w")  # these 2 lines will
                     file.close()                    # delete all the text in the file
                 try:
-                    a_dictionary = {"email": email, "password": password}
-                    with open('emails.json', 'w') as f:
-                        f.write(str(a_dictionary))
+                    a_dictionary = {"email": [email, password]}
+                    file = open("emails.json", "w")
+                    json.dump(a_dictionary, file)
                     await ctx.send(f'Changes have been saved.')
                 except Exception as e:
                     print(e)
             else:
                 await ctx.send('Credentials wont be changed.')
 
-    @tasks.loop(seconds=30)
-    async def check_email(self, ctx):
+    @tasks.loop(minutes=10)
+    async def check_email(self):
         print('1')
-        while not client.is_closed():
-            try:
-                with open('emails.json', 'r') as f:
-                    variables = json.load(f)
-                    f.close()
-                    serverEmail = variables['email']
-                    serverPassword = variables['password']
-            except Exception as e:
-                print(e)
+        try:
+            print('2')
+            with open('emails.json', 'r') as f:
+                variables = json.load(f)
+                f.close()
+                credentials = variables[str("email")]
+                serverEmail = str(credentials[0])
+                serverPassword = str(credentials[1])
+
+        except Exception as e:
+            print(e)
         print('test')
         try:
+            print('3')
+
             SMTP_SERVER = "imap.gmail.com"
             mail = imaplib.IMAP4_SSL(SMTP_SERVER)
             mail.login(serverEmail, serverPassword)

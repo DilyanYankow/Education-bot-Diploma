@@ -187,6 +187,7 @@ async def on_member_remove(member):
 async def on_ready():
     await client.change_presence(status=discord.Status.idle, activity=discord.Game("!help for commands"))
     change_status.start()
+
     print('bot is ready.')
 
 
