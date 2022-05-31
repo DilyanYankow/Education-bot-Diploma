@@ -5,6 +5,9 @@ import time
 import imaplib
 import email
 import traceback
+
+import discord
+from discord import Client
 from discord.ext import commands
 from discord.ext import tasks
 
@@ -40,11 +43,14 @@ class Emails_Notif(commands.Cog):
             await ctx.send("Time out")
         else:
             if reaction[0].emoji == '✅':
+
                 with open('emails.json', 'r') as f:
                     file = open("emails.json", "w")  # these 2 lines will
                     file.close()                    # delete all the text in the file
                 try:
-                    a_dictionary = {"email": [email, password]}
+                    channel = discord.utils.get(ctx.guild.channels, name='server-email')
+                    channel_id = channel.id
+                    a_dictionary = {"email": [email, password, channel_id]}
                     file = open("emails.json", "w")
                     json.dump(a_dictionary, file)
                     await ctx.send(f'Changes have been saved.')
@@ -64,6 +70,8 @@ class Emails_Notif(commands.Cog):
                 credentials = variables[str("email")]
                 serverEmail = str(credentials[0])
                 serverPassword = str(credentials[1])
+                server_channel_id=client.get_channel(int(credentials[2]))
+
 
         except Exception as e:
             print(e)
@@ -82,16 +90,28 @@ class Emails_Notif(commands.Cog):
             first_email_id = int(id_list[0])
             latest_email_id = int(id_list[-1])
 
+
+
             for i in range(latest_email_id, first_email_id, -1):
                 data = mail.fetch(str(i), '(RFC822)')
                 for response_part in data:
                     arr = response_part[0]
                     if isinstance(arr, tuple):
                         msg = email.message_from_string(str(arr[1], 'utf-8'))
-                        email_subject = msg['subject']
                         email_from = msg['from']
-                        print('From : ' + email_from + '\n')
-                        print('Subject : ' + email_subject + '\n')
+                       #  print('From : ' + email_from + '\n')
+                        await server_channel_id.send(f'Email from: {email_from}')
+                _, data = mail.fetch(str(i), '(RFC822)')
+                _, bytes_data = data[0]
+                email_message = email.message_from_bytes(bytes_data)
+
+                for part in email_message.walk():
+                    if part.get_content_type() == "text/plain" or part.get_content_type() == "text/html":
+                        message = part.get_payload(decode=True)
+                        await server_channel_id.send(f'Email message: {message.decode()}')
+                        break
+                await server_channel_id.send('-------------------------')
+
         except Exception as e:
             traceback.print_exc()
             print(str(e))
