@@ -2,6 +2,8 @@ import discord
 from discord import client
 from discord.ext import commands
 
+from bot import is_botchannel
+
 
 class Check_Members(commands.Cog):
     def __init__(self, client):
@@ -14,7 +16,7 @@ class Check_Members(commands.Cog):
 
     #Commands
     @commands.command(aliases=['attendees'])
-    # async def check_members(self, ctx):
+    @commands.check(is_botchannel)
     async def attendees_list(self, ctx):
         author = ctx.message.author
         try:

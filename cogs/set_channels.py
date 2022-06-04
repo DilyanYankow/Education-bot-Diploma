@@ -2,7 +2,8 @@ import asyncio
 
 import discord
 from discord.ext import commands
-from bot import client
+from bot import client, isTeacher
+
 
 class Set_Channels(commands.Cog):
     def __init__(self, client):
@@ -20,6 +21,7 @@ class Set_Channels(commands.Cog):
 
 
     @commands.command(aliases=['setup_channels'])
+    @commands.check(isTeacher)
     async def create_bot_channels(self, ctx):
         guild = ctx.guild
         def check(react, user):

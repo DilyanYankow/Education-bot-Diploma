@@ -11,10 +11,7 @@ from discord import Client
 from discord.ext import commands
 from discord.ext import tasks
 
-from bot import client
-
-
-
+from bot import client, is_botchannel
 
 
 class Emails_Notif(commands.Cog):
@@ -29,6 +26,7 @@ class Emails_Notif(commands.Cog):
 
     # Commands
     @commands.command(aliases=['set_gmail', 'my_email'])
+    @commands.check(is_botchannel)
     async def set_email(self, ctx, email, password):
         def check(react, user):
             return user == ctx.message.author and str(react.emoji) in emojis

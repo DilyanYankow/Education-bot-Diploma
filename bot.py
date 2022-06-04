@@ -35,6 +35,18 @@ intents.members = True
 client = commands.Bot(command_prefix=get_prefix, intents=intents)
 status = cycle(["Status 1", "Status 2"])
 
+async def is_botchannel(ctx, chname='bot-commands'):
+    return ctx.channel.name == chname
+
+async def isTeacher(ctx):
+    if ('Teacher' in ctx.message.author.roles):
+        return True
+    return False
+
+async def isAdmin(ctx):
+    if ctx.message.author.guild_permissions.administrator:
+        return True
+    return False
 
 # Commands
 @client.command()
@@ -54,6 +66,7 @@ async def reload(ctx, extension):
 
 
 @client.command()
+@commands.check(isTeacher)
 async def purge(ctx, amount=5):
     await ctx.channel.purge(limit=amount + 1)
 
@@ -67,8 +80,6 @@ class DurationConverter(commands.Converter):
             return (int(amount), unit)
 
         raise commands.BadArgument(message="Not a valid duration")
-
-
 
 
 
@@ -121,6 +132,7 @@ async def clear_error(ctx, error):
 
 
 @client.command()
+@has_permissions(ban_members=True)
 async def unban(ctx, *, member):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split('#')
@@ -133,6 +145,7 @@ async def unban(ctx, *, member):
 
 
 @client.command()
+@commands.check(isAdmin)
 async def changeprefix(ctx, prefix):
     with open('prefixes.json', 'r') as f:
         prefixes = json.load(f)
@@ -162,13 +175,6 @@ def get_info(member):
     except Exception as e:
         print(e)
 
-async def is_botchannel(ctx, chname='bot-commands'):
-    return ctx.channel.name == chname
-
-async def isTeacher(ctx):
-    if ('Teacher' in ctx.message.author.roles):
-        return True
-    return False
 
 @client.event
 async def on_member_join(member):

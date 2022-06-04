@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 import discord.utils
 
-from bot import client
+from bot import client, is_botchannel
 
 
 class Lecture_Announcements(commands.Cog):
@@ -13,6 +13,7 @@ class Lecture_Announcements(commands.Cog):
 
     # Commands
     @commands.command(aliases=['lecture', 'announce'])
+    @commands.check(is_botchannel)
     async def announce_lecture(self, ctx, *, message):
 
         def check(react, user):
