@@ -54,6 +54,16 @@ class Questions_Answers(commands.Cog):
         except Exception as e:
             print(e)
 
+    @commands.command(aliases=['get_answers'])
+    @commands.check(is_botchannel)
+    async def send_answers_file(self, ctx):
+        try:
+            answers_channel = discord.utils.get(ctx.guild.text_channels, name="answers")
+            if answers_channel:
+                await answers_channel.send(file=discord.File(r'student_answers.txt'))
+        except Exception as e:
+            print(e)
+
 
 
     @commands.command(aliases=['answer'])
