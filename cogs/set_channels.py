@@ -16,6 +16,7 @@ class Set_Channels(commands.Cog):
 
     # Commands
     @commands.command()
+    @commands.check(isTeacher)
     async def ping(self, ctx):
         await ctx.send('Pong!')
 

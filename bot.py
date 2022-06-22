@@ -39,7 +39,7 @@ async def is_botchannel(ctx, chname='bot-commands'):
     return ctx.channel.name == chname
 
 async def isTeacher(ctx):
-    if ('Teacher' in ctx.message.author.roles):
+    if ('Teacher' in ctx.message.author.roles or ctx.message.author.guild_permissions.administrator):
         return True
     return False
 
@@ -50,16 +50,19 @@ async def isAdmin(ctx):
 
 # Commands
 @client.command()
+@commands.check(isAdmin)
 async def load(ctx, extension):
     client.load_extension(f'cog.{extension}')
 
 
 @client.command()
+@commands.check(isAdmin)
 async def unload(ctx, extension):
     client.unload_extension(f'cog.{extension}')
 
 
 @client.command()
+@commands.check(isAdmin)
 async def reload(ctx, extension):
     client.unload_extension(f'cog.{extension}')
     client.load_extension(f'cog.{extension}')
