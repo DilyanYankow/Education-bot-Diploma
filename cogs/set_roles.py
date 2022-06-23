@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 import discord.utils
 
-from bot import client, isAdmin
+from bot import client, isTeacher
 
 
 class Set_Roles(commands.Cog):
@@ -21,7 +21,7 @@ class Set_Roles(commands.Cog):
 
 
     @commands.command(aliases=['setup_roles'])
-    @commands.check(isAdmin)
+    @commands.check(isTeacher)
     async def role_set(self, ctx):
         def check(react, user):
             return user == ctx.message.author and str(react.emoji) in emojis
