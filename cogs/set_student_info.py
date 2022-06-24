@@ -1,6 +1,4 @@
 import json
-
-import discord
 from discord.ext import commands
 
 class Set_Student_Info(commands.Cog):

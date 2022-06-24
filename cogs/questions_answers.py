@@ -1,7 +1,4 @@
-import asyncio
-import time
-
-import discord
+import asyncio, discord
 from discord.ext import commands
 from datetime import datetime
 from bot import is_botchannel, set_info

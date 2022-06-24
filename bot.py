@@ -1,9 +1,5 @@
-import asyncio
-import json
+import asyncio, json, discord, os
 from itertools import cycle
-
-import discord
-import os
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions
 

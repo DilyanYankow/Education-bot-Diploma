@@ -1,8 +1,4 @@
 import asyncio
-import json
-
-import discord
-from discord import guild
 from discord.ext import commands
 
 from bot import client, set_info, get_info, is_botchannel, isTeacher

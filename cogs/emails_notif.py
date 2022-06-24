@@ -1,16 +1,5 @@
-import asyncio
-import json
-import smtplib
-import time
-import imaplib
-import email
-import traceback
-
-import discord
-from discord import Client
-from discord.ext import commands
-from discord.ext import tasks
-
+import asyncio, json, imaplib, email, traceback, discord
+from discord.ext import commands, tasks
 from bot import client, is_botchannel
 
 
